@@ -1,17 +1,18 @@
-from dbMnpl.strmltPGconn import runQuery
+from dbUtil import runQuery
 from pandas import DataFrame
 from streamlit import text_input, dataframe, columns as stColumns, write as stWrite, info as stInfo
 from streamlit import sidebar, session_state, line_chart, slider
 from streamlit import text_input, text_area
 tchwkCLMN=['id', '主旨', '內容']
 
-def vl2Float(vl):
-  print('vl', vl)
-  return  0 if vl=='' else float(vl)
-def run():
-MENUs=['tchwk', '搜尋', '更新', '資料驗證', '搜索內容', '輸入or更新']
-option=sidebar.radio('MENUs', MENUs)
-if option==MENUs[1]:
+MENU, 表單=[], ['tchwk', '搜尋', '更新', '資料驗證', '搜索內容', '輸入or更新']	#, '錯綜複雜', '二十四節氣'
+for ndx, Menu in enumerate(表單): MENU.append(f'{ndx}{Menu}')
+with sidebar:
+  menu=stRadio('表單', MENU, horizontal=True, index=0)
+  srch=text_input('搜尋', '')
+if menu==len(表單):
+  pass
+elif menu==MENU[1]:
   #from 眼科.折線圖 import plotSght#, cnvrtDF, cnvrtLOG
   #tchwkCLMN=session_state['tchwkCLMN']
 
@@ -24,7 +25,7 @@ if option==MENUs[1]:
   qryDF=DataFrame(data=qryRslt , columns=tchwkCLMN, index=None)
   dataframe(qryDF)
   #qryDF.主旨
-elif option==MENUs[2]:
+elif menu==MENU[2]:
   tid=text_input('更新')
   if tid:
     fullQuery=f'''select 主旨, 內容 from isc8381."TechwikiMnpltn" where id='{tid}';'''#, db='tchwk'runQuery() [v[0] for v in ]
@@ -39,7 +40,7 @@ elif option==MENUs[2]:
       內容=內容.replace("'", "@")
       fullQuery=f'''update isc8381."TechwikiMnpltn" set 主旨='{主旨}', 內容='{內容}' where id='{tid}';'''#, db='tchwk'runQuery() [v[0] for v in ]
       runQuery(fullQuery, db='tchwk', commitType='update')
-elif option==MENUs[-1]:
+elif menu==MENU[-1]:
   tblName='TechwikiMnpltn'
   clmnQuery=f'''select column_name from information_schema.columns WHERE table_schema = 'isc8381' AND table_name = '{tblName}';'''
   session_state['tchwkCLMN']=tchwkCLMN=runQuery(clmnQuery, db='tchwk', commitType='insert')
@@ -55,7 +56,7 @@ elif option==MENUs[-1]:
   #dataframe(qryRslt)
   #stWrite(qryRslt)#DataFrame(data=qryRslt))
   #dataframe()
-elif option==MENUs[0]:
+elif menu==MENU[0]:
   #from 眼科 import 折線圖
   '''
   try:
@@ -70,10 +71,10 @@ elif option==MENUs[0]:
   #from 眼科 import 折線圖
   #from streamlit.components.v1 import html
   #from 眼科.折線圖 import cnvrtDF, plotSght
-  from pandas import DataFrame, set_option
+  from pandas import DataFrame, set_menu
   from streamlit import markdown, dataframe, number_input
-  from dbMnpl.strmltPGconn import runQuery
-  set_option('display.max_colwidth', 400)
+  from dbUtil import runQuery
+  set_menu('display.max_colwidth', 400)
   noTchwk=number_input('要抓取n紀錄', 100)
   #markdown('<style>div[role=radiogroup]{flex-direction:row; flex-wrap:wrap; justify-content:space-between;}</style>', unsafe_allow_html=True)
   try:
@@ -123,11 +124,11 @@ elif option==MENUs[0]:
     tchwkSPAN=TCHWKs[noPerPage*(pgNmbr-1):noPerPage*pgNmbr]
   dataframe(tchwkSPAN)
   #eyeMem=eyeHISTs[pgNmbr*ptntPerPage:pgNmbr*ptntPerPage+ptntPerPage]
-elif option==MENUs[2]:
+elif menu==MENU[2]:
   from 眼科.rtrvIVI import rtrvIVI
   from pandas import read_csv
   #df=read_csv('IVILOAE.csv', delimiter='\x06', dtype='str')
   #df.apply(rtrvIVI, axis=1)
-elif option==MENUs[3]:
+elif menu==MENU[3]:
   from 眼科.資料驗證 import dataIntegrity
   dataIntegrity()
